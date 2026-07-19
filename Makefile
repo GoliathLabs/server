@@ -75,6 +75,22 @@ release:
 		traggo:build \
 		release --skip=validate --clean
 
+.PHONY: release-ghcr
+release-ghcr:
+	docker build -t traggo:build -f docker/Dockerfile.build docker
+	docker run \
+		--rm \
+		-v "$$HOME/.docker/config.json:/root/.docker/config.json" \
+		-e CGO_ENABLED=1 \
+		-e GITHUB_TOKEN="$$GITHUB_TOKEN" \
+		-e GHCR_OWNER="$$GHCR_OWNER" \
+		-e GHCR_TAG="$$GHCR_TAG" \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $$PWD:/work \
+		-w /work \
+		traggo:build \
+		release --config .goreleaser.ghcr.yml --skip=validate --clean
+
 .PHONY: release-snapshot
 release-snapshot:
 	docker build -t traggo:build -f docker/Dockerfile.build docker

@@ -1,0 +1,43 @@
+name: ghcr-test-publish
+
+# Experimental workflow to push a build of this fork to ghcr.io for personal
+# testing. Not wired into the upstream release process (.goreleaser.yml /
+# build.yml are untouched) - safe to delete this file and .goreleaser.ghcr.yml
+# without affecting anything else if this isn't wanted.
+on:
+  push:
+    branches:
+      - ghcr-image-test
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.25.x
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - run: make download-tools
+      - run: make install
+      - run: make generate
+      - run: make build-js
+      - run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+      - id: owner
+        run: echo "lowercase=${OWNER,,}" >> "$GITHUB_OUTPUT"
+        env:
+          OWNER: ${{ github.repository_owner }}
+      - run: make release-ghcr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_OWNER: ${{ steps.owner.outputs.lowercase }}
+          GHCR_TAG: ${{ github.ref_name }}
