@@ -29,6 +29,7 @@ RUN CGO_ENABLED=1 go build \
 FROM scratch
 WORKDIR /opt/traggo
 COPY --from=build /out/traggo ./traggo
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY LICENSE README.md .env.sample ./
 EXPOSE 3030
 ENTRYPOINT ["./traggo"]
