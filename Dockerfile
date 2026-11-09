@@ -8,7 +8,7 @@ COPY schema.graphql ./schema.graphql
 COPY ui ./ui
 RUN cd ui && yarn generate && yarn build
 
-FROM golang:1.25-bookworm AS build
+FROM golang:1.26-bookworm AS build
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
