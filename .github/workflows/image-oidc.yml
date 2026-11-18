@@ -199,7 +199,8 @@ jobs:
           cache-to: type=gha,mode=max
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          provenance: false
+          provenance: mode=max
+          sbom: true
           build-args: |
             VERSION=${{ env.BRANCH }}
             COMMIT=${{ github.sha }}
