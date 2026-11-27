@@ -163,6 +163,10 @@ jobs:
           echo "short=$short" >> "$GITHUB_OUTPUT"
           echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
 
+      - name: Checked-out commit
+        id: commit
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Build date
         id: date
         run: echo "value=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
@@ -181,7 +185,7 @@ jobs:
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.created=${{ steps.date.outputs.value }}
-            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.revision=${{ steps.commit.outputs.sha }}
             org.opencontainers.image.base.name=${{ needs.decide.outputs.base_name }}
             org.opencontainers.image.base.digest=${{ needs.decide.outputs.base_digest }}
 
@@ -203,7 +207,7 @@ jobs:
           sbom: true
           build-args: |
             VERSION=${{ env.BRANCH }}
-            COMMIT=${{ github.sha }}
+            COMMIT=${{ steps.commit.outputs.sha }}
             DATE=${{ steps.date.outputs.value }}
 
       - name: Attest build provenance
